@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      - "POSTGRES_INITDB_ARGS=--data-checksums"
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "127.0.0.1:54320:5432"
+
+  nominatim:
+    image: peterevans/nominatim:latest
+    restart: always
+    environment:
+      - NOMINATIM_PBF_URL=http://download.geofabrik.de/asia/maldives-latest.osm.pbf
+    ports:
+      - "127.0.0.1:5003:8080"
+
+volumes:
+  # - ./volumes/db/data:/var/lib/postgresql/data
+  postgresql-volume:
+    external: true
