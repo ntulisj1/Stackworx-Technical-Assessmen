@@ -13,7 +13,7 @@ cursor = connection.cursor()
 
 @app.route('/')
 def healthChecks():
-    return {'ststus': 200,
+    return {'status': 200,
     'msg':'The server is running'}
 
 @app.route('/address',methods=['GET', 'POST'])
@@ -31,7 +31,7 @@ def getAddress():
         except Exception as e:
             return(str(e))
     else:
-        return {'ststus': 500,
+        return {'status': 500,
     'msg':'Both Latitude and longitude are required'}
 
 @app.route('/geo-coordinate')
@@ -47,7 +47,7 @@ def getGeoCoordinate():
         except Exception as e:
             return(str(e))
     else:
-        return {'ststus': 500,
+        return {'status': 500,
     'msg':'The address is required'}
 
 def tableExists(tbname):
@@ -64,21 +64,28 @@ def tableExists(tbname):
 def queryTable():
     tbname=request.args.get('tbname')
     limit=request.args.get('limit')
-
+    filteredString = ["DELETE","UPDATE","ALTER"]
     print ("Connecting to database\n    ->{}".format(connection))
     tbRows = []
-    if tableExists(tbname): 
-        buildQury = "select * from "+ str(tbname) +" limit "+ str(limit)
-        cursor.execute(buildQury)
 
-        for table in cursor.fetchall():
-            tbRows.append(table)
-        cursor.close()
-        jsonObject = jsonify(tbRows)
-        print("Done Geting Data")
-        return jsonObject
+    if tbname.split()[0].upper() not in filteredString:
+        if tableExists(tbname): 
+            buildQury = "select * from "+ str(tbname) +" limit "+ str(limit)
+            cursor.execute(buildQury)
+
+            for table in cursor.fetchall():
+                tbRows.append(table)
+            # cursor.close()
+            jsonObject = jsonify(tbRows)
+            print("Done Geting Data")
+            return jsonObject
+        else:
+            return "Table does not Exist in DB"
     else:
-        return "Table does not Exist in DB"
+        return {'status': 404,
+    'msg':'Delete, Update and Alter is not allowed'}
+        
+        
 
 @app.route('/generateAddress')
 def generateAddress():
